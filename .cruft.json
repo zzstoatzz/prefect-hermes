@@ -1,0 +1,20 @@
+{
+  "template": "https://github.com/PrefectHQ/prefect-collection-template",
+  "commit": "c1481628d780557e2df7c512ea78b84d75bcc510",
+  "checkout": null,
+  "context": {
+    "cookiecutter": {
+      "full_name": "Nate Nowack",
+      "email": "nate@prefect.io",
+      "github_organization": "zzstoatzz",
+      "collection_name": "prefect-hermes",
+      "collection_slug": "prefect_hermes",
+      "collection_short_description": "Friend to seekers of knowledge",
+      "_copy_without_render": [
+        ".github/workflows/*.yml"
+      ],
+      "_template": "https://github.com/PrefectHQ/prefect-collection-template"
+    }
+  },
+  "directory": null
+}
