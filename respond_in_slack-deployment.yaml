@@ -1,0 +1,39 @@
+###
+### A complete description of a Prefect Deployment for flow 'respond-in-slack'
+###
+name: hermes
+description: null
+version: a2a6fe984980b47873dd672b4f52accb
+tags:
+- slack
+parameters: {}
+schedule: null
+infra_overrides: {}
+infrastructure:
+  type: process
+  env: {}
+  labels: {}
+  name: null
+  command:
+  - python
+  - -m
+  - prefect.engine
+  stream_output: true
+###
+### DO NOT EDIT BELOW THIS LINE
+###
+flow_name: respond-in-slack
+manifest_path: null
+storage: null
+path: /Users/nate/src/play/stoat/prefect-hermes
+entrypoint: prefect_hermes/flows.py:respond_in_slack
+parameter_openapi_schema:
+  title: Parameters
+  type: object
+  properties:
+    question:
+      title: question
+      default: what is prefect?
+      type: string
+  required: null
+  definitions: null
