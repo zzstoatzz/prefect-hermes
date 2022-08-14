@@ -8,7 +8,7 @@ from prefect_slack.messages import send_chat_message
 
 
 @task(name="Generate chat log from prefect documentation")
-def parse_faq(filename="faq.md") -> str:
+def parse_faq(filename: str = "faq.md") -> str:
 
     avoid_strs = ["🔒", "<aside>"]
 
@@ -33,7 +33,7 @@ def parse_faq(filename="faq.md") -> str:
 
 
 @task(name="Solicit response from OpenAI Completion engine")
-def ask(question, chat_log=None):
+def ask(question: str, chat_log: str = None) -> str:
 
     openai.api_key = Secret.load("openai-api-key").get()
 
@@ -57,7 +57,7 @@ def ask(question, chat_log=None):
     return str(response["choices"][0]["text"])
 
 
-@flow
+@flow(name="Respond to user slack question")
 def respond_in_slack(question: str = "what is prefect?"):
     historical_context = parse_faq()
 

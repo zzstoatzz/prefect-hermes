@@ -1,9 +1,9 @@
 ###
-### A complete description of a Prefect Deployment for flow 'respond-in-slack'
+### A complete description of a Prefect Deployment for flow 'Respond to user slack question'
 ###
 name: hermes
 description: null
-version: a2a6fe984980b47873dd672b4f52accb
+version: cdf64e1d27c95588e4c89698e5ce59f8
 tags:
 - slack
 parameters: {}
@@ -22,7 +22,7 @@ infrastructure:
 ###
 ### DO NOT EDIT BELOW THIS LINE
 ###
-flow_name: respond-in-slack
+flow_name: Respond to user slack question
 manifest_path: null
 storage: null
 path: /Users/nate/src/play/stoat/prefect-hermes
