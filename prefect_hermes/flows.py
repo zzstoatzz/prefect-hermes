@@ -12,14 +12,14 @@ from prefect_hermes.blocks import OpenAICompletion
 
 
 @task(name="Generate chat log from prefect documentation", cache_key_fn=task_input_hash)
-def parse_faq(context: str = "context") -> str:
+def parse_faq(qa: str = "faq") -> str:
     """Caching context discovery and cleaning - should READ some semi-structured data instead
     
     need to figure out a consistent manner to compile QAs from forums
     """
     avoid_strs = ["🔒", "<aside>"]
 
-    content = Secret.load(context).get().replace("?", "? ??").replace("\n", "")
+    content = Secret.load(qa).get().replace("?", "? ??").replace("\n", "")
 
     link_pattern = re.compile(r"\[([^\]]+)\]\(([^)]+)\)")
 
