@@ -1,15 +1,22 @@
 import re
+from datetime import timedelta
 
 import openai
-from prefect import flow, task
+from prefect import flow, get_run_logger, task
 from prefect.blocks.system import Secret
+from prefect.tasks import task_input_hash
 from prefect_slack import SlackCredentials
 from prefect_slack.messages import send_chat_message
 
+from prefect_hermes.blocks import OpenAICompletion
 
-@task(name="Generate chat log from prefect documentation")
-def parse_faq(context: str = "faq") -> str:
 
+@task(name="Generate chat log from prefect documentation", cache_key_fn=task_input_hash)
+def parse_faq(context: str = "context") -> str:
+    """Caching context discovery and cleaning - should READ some semi-structured data instead
+    
+    need to figure out a consistent manner to compile QAs from forums
+    """
     avoid_strs = ["🔒", "<aside>"]
 
     content = Secret.load(context).get().replace("?", "? ??").replace("\n", "")
@@ -32,31 +39,34 @@ def parse_faq(context: str = "faq") -> str:
     return annotated_QAs
 
 
-@task(name="Solicit response from OpenAI Completion engine")
+@task(
+    name="Solicit response from OpenAI Completion engine",
+    cache_key_fn=task_input_hash,
+    cache_expiration=timedelta(days=1)
+)
 def ask(question: str, chat_log: str = None, model: str = "text-davinci-002") -> str:
-
+    """Opportunity to cache more 
+    """
     openai.api_key = Secret.load("openai-api-key").get()
-
+    completion_scheme = OpenAICompletion.load('completion-scheme').to_dict()
     context = Secret.load("prefect-context").get()
+    
     start_sequence = "\n\nHermes:"
     restart_sequence = "\n\nPerson:"
-
     prompt_text = f"""{context}{chat_log}{restart_sequence}:{question}{start_sequence}"""
     
-    response = openai.Completion.create(
-        engine=model,
-        prompt=prompt_text,
-        temperature=0, # float in [0 (deterministic, objective), 1 (reads creatively between the lines)]
-        max_tokens=150, # max tokens in response
-        top_p=1, # see [docs](https://beta.openai.com/docs/api-reference/completions/create#completions/create-top_p) ("Only one of Temperature and Top P should be utilised", partial derivatives baby)
-        frequency_penalty=0,
-        presence_penalty=0.3,
-        stop=["\n"],
-    )["choices"][0]["text"]
+    completion_scheme.update(
+        dict(
+            engine=model,
+            prompt=prompt_text,
+        )
+    )
+    
+    response = openai.Completion.create(**completion_scheme)["choices"][0]["text"]
         
     match response:
         case "":
-            print('bad prompt: raise OpenAIPromptError')
+            print('bad context i think: raise CustomError')
             raise ValueError
         case str():
             return response
@@ -65,7 +75,17 @@ def ask(question: str, chat_log: str = None, model: str = "text-davinci-002") ->
 
 
 @flow
-def respond_in_slack(question: str = "what is prefect?"):
+def respond_in_slack(end_user_id: str, question: str="what is the purpose of Prefect? and who is Marvin?"):
+    """A flow to process a user question in slack, provided question and user info by listener.
+
+    Args:
+        end_user_id (str): Slack ID of the end user making request via slash command
+        question (str): Question to answer from slack. Defaults to "what is the purpose of Prefect? and who is Marvin?".
+    """
+    logger = get_run_logger()
+    
+    logger.info(f"Received question from slack user with user_id: {end_user_id!r}")
+    
     historical_context = parse_faq()
 
     response = ask(question=question, chat_log=historical_context)
@@ -73,8 +93,8 @@ def respond_in_slack(question: str = "what is prefect?"):
     send_chat_message(
         slack_credentials=SlackCredentials(Secret.load("slack-token").get()),
         channel="#testing-slackbots",
-        text=response,
+        text=f"Q: *{question}*\nA: {response}",
     )
 
 if __name__ == "__main__":
-    respond_in_slack(question="what is the purpose of prefect?")
+    respond_in_slack()

@@ -3,7 +3,7 @@
 ###
 name: hermes
 description: null
-version: b32085449735fefba5e821fab70c9278
+version: 105da50b98d4509577dcaf779cb34c8f
 tags:
 - slack
 parameters: {}
@@ -31,9 +31,13 @@ parameter_openapi_schema:
   title: Parameters
   type: object
   properties:
+    end_user_id:
+      title: end_user_id
+      type: string
     question:
       title: question
-      default: what is prefect?
+      default: what is the purpose of Prefect? and who is Marvin?
       type: string
-  required: null
+  required:
+  - end_user_id
   definitions: null

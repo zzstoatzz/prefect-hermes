@@ -17,16 +17,18 @@ async def trigger_flow_run(deployment_id: str, params: dict) -> FlowRun:
 @app.route("/askhermes", methods=["POST"])
 def ask_hermes() -> dict:
 
-    # TODO: add metadata caching logic to prevent high volume users
+    # TODO: add caching logic to prevent high volume users
 
     trigger_flow_run(
         deployment_id="94c8909a-9adc-42f8-a632-21f454890b6e",
-        params=dict(question=request.form.get("text")),
+        params=dict(
+            end_user_id=request.form.get("user_id"), question=request.form.get("text")
+        ),
     )
 
     return {
         "response_type": "ephemeral",
-        "text": "whoaah now, hold your 🐎 🐎 ...I'm **working** on it"
+        "text": "whoaah now, hold your 🐎 🐎 ...I'm *working* on it",
     }
 
 
