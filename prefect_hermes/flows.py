@@ -84,7 +84,7 @@ def respond_in_slack(end_user_id: str, question: str):
 
     Args:
         end_user_id (str): Slack ID of the end user making request via slash command
-        question (str): Question to answer from slack. Defaults to "what is the purpose of Prefect? and who is Marvin?".
+        question (str): Question to answer from slack.
     """
     logger = get_run_logger()
     
