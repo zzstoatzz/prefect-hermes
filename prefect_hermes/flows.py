@@ -1,4 +1,4 @@
-import re
+import re, json
 from datetime import timedelta
 
 import openai
@@ -9,7 +9,6 @@ from prefect_slack import SlackCredentials
 from prefect_slack.messages import send_chat_message
 
 from prefect_hermes.blocks import OpenAICompletion
-
 
 @task(name="Generate chat log from prefect documentation", cache_key_fn=task_input_hash)
 def parse_faq(qa: str = "faq") -> str:
@@ -31,6 +30,11 @@ def parse_faq(qa: str = "faq") -> str:
     raw_QAs = [i.split("??", 1) for i in content.strip().split("##") if i != ""]
 
     shareable_QAs = [i for i in raw_QAs if all(j not in i[-1] for j in avoid_strs)]
+    
+    # temporary way to generate training data - requires manual edits at the moment
+    # with open('training.txt', 'w') as f:
+    #     for dat in [{"prompt": i[0].strip()+'\n\n###\n\n', "completion": ' '+i[1].strip()+'\n'} for i in shareable_QAs]:
+    #         f.write(json.dumps(dat)+'\n')
 
     annotated_QAs = "".join(
         map(lambda i: f"\nPerson: {i[0]}\nHermes: {i[1]}\n", shareable_QAs)
@@ -75,7 +79,7 @@ def ask(question: str, chat_log: str = None, model: str = "text-davinci-002") ->
 
 
 @flow
-def respond_in_slack(end_user_id: str, question: str="what is the purpose of Prefect? and who is Marvin?"):
+def respond_in_slack(end_user_id: str, question: str):
     """A flow to process a user question in slack, provided question and user info by listener.
 
     Args:
@@ -97,4 +101,7 @@ def respond_in_slack(end_user_id: str, question: str="what is the purpose of Pre
     )
 
 if __name__ == "__main__":
-    respond_in_slack(end_user_id='U03RX2A8LK0')
+    respond_in_slack(
+        end_user_id='U03RX2A8LK0',
+        question="What is stored in the Prefect Orion Database? and who is Marvin?"
+    )

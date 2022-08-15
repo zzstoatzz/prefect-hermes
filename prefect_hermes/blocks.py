@@ -23,4 +23,4 @@ class OpenAICompletion(Block):
     top_p: int
 
     def to_dict(self) -> Dict:
-        return {k: v for k, v in self.dict().items() if k[0] != "_"}
+        return self._to_block_document().data

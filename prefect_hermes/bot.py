@@ -18,6 +18,8 @@ async def trigger_flow_run(deployment_id: str, params: dict) -> FlowRun:
 def ask_hermes() -> dict:
 
     # TODO: add caching logic to prevent high volume users
+    
+    print(request.form)
 
     trigger_flow_run(
         deployment_id="94c8909a-9adc-42f8-a632-21f454890b6e",
