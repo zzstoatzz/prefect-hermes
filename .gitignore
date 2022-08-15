@@ -138,6 +138,6 @@ dmypy.json
 *.ipynb
 
 # custom
-faq.md
+context.md
 prefect.txt
 ngrok

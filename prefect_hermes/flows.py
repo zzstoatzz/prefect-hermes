@@ -3,7 +3,7 @@ from datetime import timedelta
 
 import openai
 from prefect import flow, get_run_logger, task
-from prefect.blocks.system import Secret
+from prefect.blocks.system import Secret, String
 from prefect.tasks import task_input_hash
 from prefect_slack import SlackCredentials
 from prefect_slack.messages import send_chat_message
@@ -49,7 +49,7 @@ def ask(question: str, chat_log: str = None, model: str = "text-davinci-002") ->
     """
     openai.api_key = Secret.load("openai-api-key").get()
     completion_scheme = OpenAICompletion.load('completion-scheme').to_dict()
-    context = Secret.load("prefect-context").get()
+    context = String.load("context").value
     
     start_sequence = "\n\nHermes:"
     restart_sequence = "\n\nPerson:"
@@ -69,7 +69,7 @@ def ask(question: str, chat_log: str = None, model: str = "text-davinci-002") ->
             print('bad context i think: raise CustomError')
             raise ValueError
         case str():
-            return response
+            return str(response)
         case _:
             raise AssertionError
 
@@ -97,4 +97,4 @@ def respond_in_slack(end_user_id: str, question: str="what is the purpose of Pre
     )
 
 if __name__ == "__main__":
-    respond_in_slack()
+    respond_in_slack(end_user_id='U03RX2A8LK0')
