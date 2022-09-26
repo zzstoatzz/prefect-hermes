@@ -36,7 +36,7 @@ fsspec==2022.7.1
 google-auth==2.10.0
 greenlet==1.1.2
 greenletio==0.9.0
-griffe==0.21.0
+griffe==0.22.2
 h11==0.12.0
 httpcore==0.15.0
 httpx==0.23.0
